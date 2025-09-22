@@ -5,54 +5,67 @@ mongoose
  .then(() => console.log('connect to mongodb'))
  .catch((err) => console.log('could not connect to mongodb', err));
 
-//   const bookSchema = new mongoose.Schema({
-//    title: String,
-//    pages: Number,
-//  });
+  const bookSchema = new mongoose.Schema({
+   title: String,
+   pages: Number,
+ });
 
-//   const Book = mongoose.model('Book', bookSchema);
+  const Book = mongoose.model('Book', bookSchema);
 
-const Book = mongoose.model('Book', new mongoose.Schema({
-  title: String,
-  pages: Number
-}));
 
 const User = mongoose.model('User', new mongoose.Schema({
   first_name: String,
   last_name: String,
-  book: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Book'
-  } 
+  book: bookSchema
 }));
 
-async function createUser(first_name, last_name, book_id){
+async function createUser(first_name, last_name, book){
   const user = new User({
     first_name,
     last_name, 
-    book: book_id
+    book
   });
 
   const result = await user.save();
   console.log(result);
 }
 
-async function createBook(title, pages){
-  const book = new Book({
-    title,
-    pages
-  });
-
-  const result = await book.save();
-  console.log(result);
-}
-
 async function getUsers(){
-  const users = await User.find().populate('book', 'title pages -_id');  // .populate('...', '...').populate('...', '...')
+  const users = await User.find();
 
   console.log(users);
 }
 
- // createBook('nodejs programming', 250);
- // createUser('Ali', 'Rahimi', '68d12c2166412b9c2e576218');
- getUsers();
+// async function updateUser(id){
+//   const user = await User.findById(id);
+//   user.book.title = 'react programming';
+//   await user.save();
+// }
+
+// async function updateUser(id){
+//   const user = await User.updateOne({_id: id}, {
+//     $set: {
+//       'book.title': 'MongoDB'
+//     }
+//   })
+// }
+
+// async function updateUser(id){
+//   const user = await User.updateOne({_id: id}, {
+//     $unset: {
+//       'book': ''
+//     }
+//   });
+// }
+
+async function updateUser(id){
+  const user = await User.updateOne({_id: id}, {
+    $unset: {
+      'book.title': ''
+    }
+  });
+}
+
+ updateUser('68d1841f529b2a212cc1601a')
+ // createUser('Ali', 'Rahimi', new Book({title: 'nodejs programming', pages: 500}));
+ // getUsers();
